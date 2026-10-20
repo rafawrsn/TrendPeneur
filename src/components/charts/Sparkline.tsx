@@ -10,16 +10,17 @@ interface SparklineProps {
 }
 
 export function Sparkline({ values, width = 80, height = 28, color }: SparklineProps) {
-  if (values.length < 2) return null;
+  const validValues = values?.filter((v) => typeof v === 'number' && Number.isFinite(v)) ?? [];
+  if (validValues.length < 2) return null;
 
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min || 1;
-  const xStep = width / (values.length - 1);
+  const min = Math.min(...validValues);
+  const max = Math.max(...validValues);
+  const range = max === min ? 1 : max - min;
+  const xStep = width / Math.max(1, validValues.length - 1);
 
-  const points = values.map((v, i) => ({
+  const points = validValues.map((v, i) => ({
     x: i * xStep,
-    y: height - ((v - min) / range) * height,
+    y: height - ((v - min) / range) * (height - 4) - 2,
   }));
 
   const linePath = points
@@ -29,7 +30,7 @@ export function Sparkline({ values, width = 80, height = 28, color }: SparklineP
   const areaPath = `${linePath} L ${width.toFixed(2)} ${height.toFixed(2)} L 0 ${height.toFixed(2)} Z`;
 
   const strokeColor = color ?? colors.chartLine;
-  const gradId = `spark-${strokeColor.replace('#', '')}`;
+  const gradId = `spark-${strokeColor.replace('#', '')}-${validValues.length}`;
 
   return (
     <Svg width={width} height={height}>

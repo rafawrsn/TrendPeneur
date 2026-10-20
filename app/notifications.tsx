@@ -9,11 +9,13 @@ import { Card } from '@/src/components/ui/Card';
 import { Badge } from '@/src/components/ui/Badge';
 import { EmptyState } from '@/src/components/ui/EmptyState';
 import { formatDateId } from '@/src/utils/format';
+import { useRequireAuth } from '@/src/hooks/useRequireAuth';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function NotificationsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  useRequireAuth({ returnTo: '/notifications' });
   const queryClient = useQueryClient();
 
   const { data: notifications } = useQuery({

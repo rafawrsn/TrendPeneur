@@ -11,6 +11,7 @@ import { Button } from '@/src/components/ui/Button';
 import { EmptyState } from '@/src/components/ui/EmptyState';
 import { useToast } from '@/src/components/ui/Toast';
 import { useSessionStore } from '@/src/stores/session';
+import { useRequireAuth } from '@/src/hooks/useRequireAuth';
 import { formatDateId } from '@/src/utils/format';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -18,6 +19,7 @@ export default function AnalysisHistoryScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  useRequireAuth({ returnTo: '/analysis/history' });
   const queryClient = useQueryClient();
   const user = useSessionStore((s) => s.user);
 

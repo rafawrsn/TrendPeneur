@@ -21,12 +21,13 @@ export default function ForgotPasswordScreen() {
   const [sent, setSent] = useState(false);
 
   const handleSubmit = async () => {
-    const err = emailSchema.safeParse(email).success ? undefined : 'Format email tidak valid';
+    const trimmedEmail = email.trim().toLowerCase();
+    const err = emailSchema.safeParse(trimmedEmail).success ? undefined : 'Format email tidak valid';
     if (err) { setError(err); return; }
 
     setLoading(true);
     try {
-      await getService().forgotPassword(email);
+      await getService().forgotPassword(trimmedEmail);
       setSent(true);
       toast.show('Tautan reset telah dikirim (jika email terdaftar).', 'info');
     } catch {

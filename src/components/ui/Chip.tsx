@@ -1,12 +1,12 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { colors, typography, radius, spacing } from '../../theme/tokens';
 
 interface ChipProps {
   label: string;
   selected?: boolean;
   onPress?: () => void;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   icon?: React.ReactNode;
 }
 
