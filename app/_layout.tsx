@@ -13,6 +13,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ToastProvider } from '@/src/components/ui/Toast';
+import { ErrorBoundary } from '@/src/components/ui/ErrorBoundary';
 import { useSessionStore } from '@/src/stores/session';
 import { useUiStore } from '@/src/stores/ui';
 import { colors } from '@/src/theme/tokens';
@@ -39,6 +40,7 @@ export default function RootLayout() {
   });
 
   const initializeSession = useSessionStore((s) => s.initialize);
+  const isSessionInitialized = useSessionStore((s) => s.isInitialized);
   const initializeUi = useUiStore((s) => s.initialize);
 
   useEffect(() => {
@@ -47,27 +49,29 @@ export default function RootLayout() {
   }, [initializeSession, initializeUi]);
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    if ((fontsLoaded || fontError) && isSessionInitialized) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, isSessionInitialized]);
 
-  if (!fontsLoaded && !fontError) {
+  if ((!fontsLoaded && !fontError) || !isSessionInitialized) {
     return null;
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <ToastProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="+not-found" />
-            </Stack>
-            <StatusBar style="dark" />
-          </ToastProvider>
-        </QueryClientProvider>
-      </SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <SafeAreaProvider>
+          <ErrorBoundary>
+            <ToastProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="+not-found" />
+              </Stack>
+              <StatusBar style="dark" />
+            </ToastProvider>
+          </ErrorBoundary>
+        </SafeAreaProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }

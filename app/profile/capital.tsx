@@ -8,6 +8,7 @@ import { Card } from '@/src/components/ui/Card';
 import { Chip } from '@/src/components/ui/Chip';
 import { useToast } from '@/src/components/ui/Toast';
 import { useSessionStore } from '@/src/stores/session';
+import { useRequireAuth } from '@/src/hooks/useRequireAuth';
 import { getService, ApiError } from '@/src/api';
 import { CAPITAL_BANDS } from '@/src/config/constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,6 +17,7 @@ export default function CapitalScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  useRequireAuth({ returnTo: '/profile/capital' });
   const user = useSessionStore((s) => s.user);
   const refreshUser = useSessionStore((s) => s.refreshUser);
 

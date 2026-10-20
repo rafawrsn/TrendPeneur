@@ -7,6 +7,7 @@ import { Button } from '@/src/components/ui/Button';
 import { Card } from '@/src/components/ui/Card';
 import { useToast } from '@/src/components/ui/Toast';
 import { useSessionStore } from '@/src/stores/session';
+import { useRequireAuth } from '@/src/hooks/useRequireAuth';
 import { getService, ApiError } from '@/src/api';
 import { PLAN } from '@/src/config/plan';
 import { formatRupiah, formatCountdown } from '@/src/utils/format';
@@ -17,6 +18,7 @@ export default function PaymentScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  useRequireAuth({ returnTo: '/premium/payment' });
   const user = useSessionStore((s) => s.user);
   const [payment, setPayment] = useState<any>(null);
   const [loading, setLoading] = useState(true);

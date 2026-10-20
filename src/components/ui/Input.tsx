@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ViewStyle,
+  StyleProp,
 } from 'react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { colors, typography, radius, spacing } from '../../theme/tokens';
@@ -20,7 +21,7 @@ interface InputProps {
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   accessibilityLabel?: string;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   multiline?: boolean;
   numberOfLines?: number;
   maxLength?: number;

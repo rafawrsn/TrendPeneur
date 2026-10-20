@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, Linking } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { colors, typography, spacing, radius } from '@/src/theme/tokens';
 import { Input } from '@/src/components/ui/Input';
@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ returnTo?: string }>();
   const insets = useSafeAreaInsets();
   const toast = useToast();
 
@@ -24,8 +25,10 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    const nameErr = nameSchema.safeParse(name).success ? undefined : 'Nama minimal 2 karakter';
-    const emailErr = emailSchema.safeParse(email).success ? undefined : 'Format email tidak valid';
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const nameErr = nameSchema.safeParse(trimmedName).success ? undefined : 'Nama minimal 2 karakter';
+    const emailErr = emailSchema.safeParse(trimmedEmail).success ? undefined : 'Format email tidak valid';
     const passResult = passwordSchema.safeParse(password);
     const passErr = passResult.success ? undefined : passResult.error.issues[0]?.message;
     const consentErr = consent ? undefined : 'Kamu harus menyetujui Syarat & Ketentuan';
@@ -36,9 +39,12 @@ export default function RegisterScreen() {
 
     setLoading(true);
     try {
-      await getService().register({ name, email, password });
+      await getService().register({ name: trimmedName, email: trimmedEmail, password });
       toast.show('Akun dibuat! Verifikasi email kamu.', 'success');
-      router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
+      const target = params.returnTo
+        ? `/auth/verify-email?email=${encodeURIComponent(trimmedEmail)}&returnTo=${encodeURIComponent(params.returnTo)}`
+        : `/auth/verify-email?email=${encodeURIComponent(trimmedEmail)}`;
+      router.push(target as any);
     } catch (e) {
       if (e instanceof ApiError) {
         toast.show(e.indonesianMessage, 'error');
@@ -111,7 +117,16 @@ export default function RegisterScreen() {
           <Button label="Daftar" onPress={handleRegister} loading={loading} fullWidth />
         </Card>
 
-        <Pressable onPress={() => router.push('/auth/login')} style={styles.loginLink}>
+        <Pressable
+          onPress={() =>
+            router.push(
+              params.returnTo
+                ? `/auth/login?returnTo=${encodeURIComponent(params.returnTo)}`
+                : '/auth/login'
+            )
+          }
+          style={styles.loginLink}
+        >
           <Text style={styles.loginText}>
             Sudah punya akun? <Text style={styles.loginBold}>Masuk</Text>
           </Text>

@@ -9,6 +9,7 @@ import { Input } from '@/src/components/ui/Input';
 import { Badge } from '@/src/components/ui/Badge';
 import { useToast } from '@/src/components/ui/Toast';
 import { useSessionStore } from '@/src/stores/session';
+import { useRequireAuth } from '@/src/hooks/useRequireAuth';
 import { getService, ApiError, type Product } from '@/src/api';
 import { getCapitalBandLabel } from '@/src/config/constants';
 import { useDebounce } from '@/src/hooks/useDebounce';
@@ -20,6 +21,10 @@ export default function NewAnalysisScreen() {
   const { productId } = useLocalSearchParams<{ productId?: string }>();
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  useRequireAuth({
+    requirePremium: true,
+    returnTo: productId ? `/analysis/new?productId=${productId}` : '/analysis/new',
+  });
   const user = useSessionStore((s) => s.user);
   const [search, setSearch] = useState('');
   const [selectedSlug, setSelectedSlug] = useState<string | null>(productId ?? null);

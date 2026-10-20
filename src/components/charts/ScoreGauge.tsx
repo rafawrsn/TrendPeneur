@@ -10,11 +10,13 @@ interface ScoreGaugeProps {
 }
 
 export function ScoreGauge({ score, size = 160, label }: ScoreGaugeProps) {
-  const clampedScore = Math.max(0, Math.min(100, score));
+  const safeScore = typeof score === 'number' && Number.isFinite(score) ? score : 0;
+  const clampedScore = Math.max(0, Math.min(100, Math.round(safeScore)));
   const strokeWidth = 12;
-  const radius = (size - strokeWidth) / 2;
-  const cx = size / 2;
-  const cy = size / 2;
+  const safeSize = Math.max(80, size);
+  const radius = (safeSize - strokeWidth) / 2;
+  const cx = safeSize / 2;
+  const cy = safeSize / 2;
 
   // Semi-circle from 180° to 360° (left to right, top half)
   const startAngle = 180;
@@ -37,8 +39,10 @@ export function ScoreGauge({ score, size = 160, label }: ScoreGaugeProps) {
   // Background arc (semi-circle)
   const bgPath = `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${radius} ${radius} 0 0 1 ${end.x.toFixed(2)} ${end.y.toFixed(2)}`;
 
-  // Score arc
-  const scorePath = `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${radius} ${radius} 0 0 1 ${scoreEnd.x.toFixed(2)} ${scoreEnd.y.toFixed(2)}`;
+  // Score arc (only if clampedScore > 0)
+  const scorePath = clampedScore > 0
+    ? `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${radius} ${radius} 0 0 1 ${scoreEnd.x.toFixed(2)} ${scoreEnd.y.toFixed(2)}`
+    : '';
 
   // Determine color based on score
   let scoreColor: string = colors.danger;
@@ -46,11 +50,13 @@ export function ScoreGauge({ score, size = 160, label }: ScoreGaugeProps) {
   else if (clampedScore >= 60) scoreColor = colors.primary;
   else if (clampedScore >= 40) scoreColor = colors.warning;
 
+  const gradId = `scoreGrad-${clampedScore}-${Math.round(cx)}`;
+
   return (
     <View style={styles.container}>
-      <Svg width={size} height={size / 2 + 20}>
+      <Svg width={safeSize} height={safeSize / 2 + 20}>
         <Defs>
-          <LinearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="0">
+          <LinearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
             <Stop offset="0%" stopColor={scoreColor} stopOpacity="0.6" />
             <Stop offset="100%" stopColor={scoreColor} stopOpacity="1" />
           </LinearGradient>
@@ -58,7 +64,9 @@ export function ScoreGauge({ score, size = 160, label }: ScoreGaugeProps) {
         {/* Background */}
         <Path d={bgPath} stroke={colors.border} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" />
         {/* Score */}
-        <Path d={scorePath} stroke="url(#scoreGrad)" strokeWidth={strokeWidth} fill="none" strokeLinecap="round" />
+        {scorePath ? (
+          <Path d={scorePath} stroke={`url(#${gradId})`} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" />
+        ) : null}
         {/* Score text */}
         <SvgText
           x={cx}

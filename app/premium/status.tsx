@@ -9,6 +9,7 @@ import { Badge } from '@/src/components/ui/Badge';
 import { PaymentStatusCard } from '@/src/components/features/PaymentStatusCard';
 import { useToast } from '@/src/components/ui/Toast';
 import { useSessionStore } from '@/src/stores/session';
+import { useRequireAuth } from '@/src/hooks/useRequireAuth';
 import { getService, ApiError, IS_MOCK } from '@/src/api';
 import { useQuery } from '@tanstack/react-query';
 import { formatDateId, formatDateIdFull } from '@/src/utils/format';
@@ -26,6 +27,7 @@ export default function PaymentStatusScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  useRequireAuth({ returnTo: '/premium/status' });
   const refreshUser = useSessionStore((s) => s.refreshUser);
   const [refreshing, setRefreshing] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
@@ -49,8 +51,10 @@ export default function PaymentStatusScreen() {
     setRefreshing(false);
   }, [refetch, refreshUser]);
 
-  const activePayment = payments?.find((p) => p.status === 'PENDING_PAYMENT' || p.status === 'PENDING_VERIFICATION');
-  const pastPayments = payments?.filter((p) => p.status !== 'PENDING_PAYMENT' && p.status !== 'PENDING_VERIFICATION') ?? [];
+  const activePayment = payments?.find(
+    (p) => p.status === 'PENDING_PAYMENT' || p.status === 'PENDING_VERIFICATION' || p.status === 'REJECTED',
+  );
+  const pastPayments = payments?.filter((p) => p.id !== activePayment?.id) ?? [];
 
   const handleApprove = async (id: string) => {
     try {
