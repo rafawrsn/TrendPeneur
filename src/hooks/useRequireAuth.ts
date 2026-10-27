@@ -19,8 +19,12 @@ export function useRequireAuth(options: RequireAuthOptions = {}) {
     if (!user) {
       const target = returnTo ? `${redirectTo}?returnTo=${encodeURIComponent(returnTo)}` : redirectTo;
       router.replace(target as any);
+      return;
     }
-  }, [user, isInitialized, router, redirectTo, returnTo]);
+    if (requirePremium && !user.isPremium) {
+      router.replace('/premium/paywall');
+    }
+  }, [user, isInitialized, router, redirectTo, returnTo, requirePremium]);
 
   return {
     isAuthenticated: !!user,

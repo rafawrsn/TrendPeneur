@@ -23,13 +23,32 @@ async function getSecureStore() {
   }
 }
 
+function getWebLocalStorage(): Storage | null {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      return window.localStorage;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function storageGet(key: string): Promise<string | null> {
   const ss = await getSecureStore();
   if (ss) {
     try {
       return await ss.getItem(key);
     } catch {
-      return memoryStore[key] ?? null;
+      // fall through
+    }
+  }
+  const ls = getWebLocalStorage();
+  if (ls) {
+    try {
+      return ls.getItem(key);
+    } catch {
+      // fall through
     }
   }
   return memoryStore[key] ?? null;
@@ -42,7 +61,15 @@ export async function storageSet(key: string, value: string): Promise<void> {
       await ss.setItem(key, value);
       return;
     } catch {
-      // fall through to memory
+      // fall through to web/memory
+    }
+  }
+  const ls = getWebLocalStorage();
+  if (ls) {
+    try {
+      ls.setItem(key, value);
+    } catch {
+      // fall through
     }
   }
   memoryStore[key] = value;
@@ -54,6 +81,14 @@ export async function storageDelete(key: string): Promise<void> {
     try {
       await ss.deleteItem(key);
       return;
+    } catch {
+      // fall through
+    }
+  }
+  const ls = getWebLocalStorage();
+  if (ls) {
+    try {
+      ls.removeItem(key);
     } catch {
       // fall through
     }

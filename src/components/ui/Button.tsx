@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
+  StyleProp,
 } from 'react-native';
 import { colors, typography, radius, spacing, shadows } from '../../theme/tokens';
 
@@ -21,7 +22,7 @@ interface ButtonProps {
   fullWidth?: boolean;
   size?: 'sm' | 'md' | 'lg';
   icon?: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
 }
 

@@ -7,6 +7,7 @@ import { Button } from '@/src/components/ui/Button';
 import { Card } from '@/src/components/ui/Card';
 import { Input } from '@/src/components/ui/Input';
 import { useToast } from '@/src/components/ui/Toast';
+import { useRequireAuth } from '@/src/hooks/useRequireAuth';
 import { getService, ApiError } from '@/src/api';
 import { PROOF_MAX_BYTES, ALLOWED_PROOF_TYPES } from '@/src/config/plan';
 import * as ImagePicker from 'expo-image-picker';
@@ -16,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function UploadProofScreen() {
   const router = useRouter();
   const { paymentId } = useLocalSearchParams<{ paymentId: string }>();
+  useRequireAuth({ returnTo: `/premium/upload-proof?paymentId=${paymentId ?? ''}` });
   const insets = useSafeAreaInsets();
   const toast = useToast();
 
@@ -28,6 +30,11 @@ export default function UploadProofScreen() {
   const [progress, setProgress] = useState(0);
 
   const pickFromGallery = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      toast.show('Izin galeri diperlukan. Buka pengaturan untuk mengaktifkan.', 'error');
+      return;
+    }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 0.8,
@@ -40,7 +47,7 @@ export default function UploadProofScreen() {
   const pickFromCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      toast.show('Izin kamera diperlukan.', 'error');
+      toast.show('Izin kamera diperlukan. Buka pengaturan untuk mengaktifkan.', 'error');
       return;
     }
     const result = await ImagePicker.launchCameraAsync({

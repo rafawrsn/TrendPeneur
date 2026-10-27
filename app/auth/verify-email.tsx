@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function VerifyEmailScreen() {
   const router = useRouter();
-  const { email } = useLocalSearchParams<{ email: string }>();
+  const { email, returnTo } = useLocalSearchParams<{ email: string; returnTo?: string }>();
   const insets = useSafeAreaInsets();
   const toast = useToast();
   const { setUser, setTokens } = useSessionStore();
@@ -42,7 +42,11 @@ export default function VerifyEmailScreen() {
       setUser(result.user);
       setTokens(result.accessToken, result.refreshToken);
       toast.show('Email berhasil diverifikasi!', 'success');
-      router.replace('/');
+      if (returnTo) {
+        router.replace(returnTo as any);
+      } else {
+        router.replace('/');
+      }
     } catch (e) {
       if (e instanceof ApiError) {
         toast.show(e.indonesianMessage, 'error');

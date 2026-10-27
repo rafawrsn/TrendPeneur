@@ -33,7 +33,8 @@ export default function LoginScreen() {
   }, [user, params.returnTo, router]);
 
   const handleLogin = async () => {
-    const emailErr = emailSchema.safeParse(email).success ? undefined : 'Format email tidak valid';
+    const trimmedEmail = email.trim().toLowerCase();
+    const emailErr = emailSchema.safeParse(trimmedEmail).success ? undefined : 'Format email tidak valid';
     const passErr = password ? undefined : 'Password wajib diisi';
     if (emailErr || passErr) {
       setErrors({ email: emailErr, password: passErr });
@@ -42,7 +43,7 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const result = await getService().login({ email, password });
+      const result = await getService().login({ email: trimmedEmail, password });
       setUser(result.user);
       setTokens(result.accessToken, result.refreshToken);
       toast.show('Berhasil masuk!', 'success');
@@ -113,8 +114,21 @@ export default function LoginScreen() {
           
         </View>
 
+<<<<<<< HEAD
         {/*router.push*/}
         <Pressable onPress={() => router.push('/auth/register')} style={styles.registerLink}>
+=======
+        <Pressable
+          onPress={() =>
+            router.push(
+              params.returnTo
+                ? `/auth/register?returnTo=${encodeURIComponent(params.returnTo)}`
+                : '/auth/register'
+            )
+          }
+          style={styles.registerLink}
+        >
+>>>>>>> 4964e466b45d1e112372d08143e689fe9f13c3e9
           <Text style={styles.registerText}>
             Belum punya akun? <Text style={styles.registerBold}>Daftar</Text>
           </Text>

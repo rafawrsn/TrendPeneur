@@ -1,18 +1,19 @@
 import type { TrendPreneurService } from './service';
-import type {
-  Analysis,
-  AnalysisQuota,
-  AnalysisResult,
-  AppNotification,
-  AuthResult,
-  Category,
-  PaymentRequest,
-  Product,
-  Subscription,
-  TrendRange,
-  TrendSeries,
-  TrendingProduct,
-  User,
+import {
+  type Analysis,
+  type AnalysisQuota,
+  type AnalysisResult,
+  type AppNotification,
+  type AuthResult,
+  type Category,
+  type PaymentRequest,
+  type Product,
+  type Subscription,
+  type TrendRange,
+  type TrendSeries,
+  type TrendingProduct,
+  type User,
+  AnalysisResultSchema,
 } from './types';
 import { ApiError } from './errors';
 import {
@@ -347,7 +348,14 @@ export class MockTrendPreneurService implements TrendPreneurService {
       }
     }
 
-    const uniqueCode = Math.floor(Math.random() * 900) + 100;
+    const activeRequests = s.payments.filter((p) =>
+      ['PENDING_PAYMENT', 'PENDING_VERIFICATION'].includes(p.status) && p.amountBase === PLAN.priceIdr
+    );
+    const usedCodes = new Set(activeRequests.map((p) => p.uniqueCode));
+    let uniqueCode = Math.floor(Math.random() * 900) + 100;
+    while (usedCodes.has(uniqueCode) && usedCodes.size < 900) {
+      uniqueCode = Math.floor(Math.random() * 900) + 100;
+    }
     const now = new Date();
     const expiresAt = new Date(now.getTime() + PAYMENT_EXPIRY_HOURS * 60 * 60 * 1000);
 
@@ -638,7 +646,7 @@ export class MockTrendPreneurService implements TrendPreneurService {
         try {
           const points = generateSeries(product.slug, product.archetype as any, 120);
           const signals = computeSignals(points);
-          const result = await this.analyzer.analyze({
+          const rawResult = await this.analyzer.analyze({
             product,
             signals,
             capitalBand: rec.capitalBand,
@@ -646,6 +654,7 @@ export class MockTrendPreneurService implements TrendPreneurService {
             timeCommitment: rec.timeCommitment,
             experience: rec.experience,
           });
+          const result = AnalysisResultSchema.parse(rawResult);
           a2.status = 'COMPLETED';
           a2.result = result;
           a2.completedAt = new Date().toISOString();

@@ -13,6 +13,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ToastProvider } from '@/src/components/ui/Toast';
+import { ErrorBoundary } from '@/src/components/ui/ErrorBoundary';
 import { useSessionStore } from '@/src/stores/session';
 import { useUiStore } from '@/src/stores/ui';
 import { colors } from '@/src/theme/tokens';
@@ -42,6 +43,7 @@ export default function RootLayout() {
   });
 
   const initializeSession = useSessionStore((s) => s.initialize);
+  const isSessionInitialized = useSessionStore((s) => s.isInitialized);
   const initializeUi = useUiStore((s) => s.initialize);
 
   // [REQUIREMENT: useEffect] - Melakukan inisialisasi session dan konfigurasi UI saat komponen Root Layout dimount
@@ -59,17 +61,25 @@ export default function RootLayout() {
 
   // [REQUIREMENT: useEffect] - Menyembunyikan SplashScreen setelah font dimuat dan app siap
   useEffect(() => {
+<<<<<<< HEAD
     if ((fontsLoaded || fontError) && isReady) {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError, isReady]);
+=======
+    if ((fontsLoaded || fontError) && isSessionInitialized) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError, isSessionInitialized]);
+>>>>>>> 4964e466b45d1e112372d08143e689fe9f13c3e9
 
-  if (!fontsLoaded && !fontError) {
+  if ((!fontsLoaded && !fontError) || !isSessionInitialized) {
     return null;
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+<<<<<<< HEAD
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <ToastProvider>
@@ -102,6 +112,20 @@ export default function RootLayout() {
           </ToastProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
+=======
+      <QueryClientProvider client={queryClient}>
+        <SafeAreaProvider>
+          <ErrorBoundary>
+            <ToastProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="+not-found" />
+              </Stack>
+              <StatusBar style="dark" />
+            </ToastProvider>
+          </ErrorBoundary>
+        </SafeAreaProvider>
+      </QueryClientProvider>
+>>>>>>> 4964e466b45d1e112372d08143e689fe9f13c3e9
     </GestureHandlerRootView>
   );
 }
