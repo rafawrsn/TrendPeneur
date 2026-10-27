@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
@@ -17,12 +17,20 @@ export default function LoginScreen() {
   const params = useLocalSearchParams<{ returnTo?: string }>();
   const insets = useSafeAreaInsets();
   const toast = useToast();
-  const { setUser, setTokens } = useSessionStore();
+  const { user, setUser, setTokens } = useSessionStore();
 
+  // useState
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
+
+  // useEffect
+  useEffect(() => {
+    if (user) {
+      router.replace(params.returnTo as any || '/');
+    }
+  }, [user, params.returnTo, router]);
 
   const handleLogin = async () => {
     const emailErr = emailSchema.safeParse(email).success ? undefined : 'Format email tidak valid';
@@ -38,6 +46,8 @@ export default function LoginScreen() {
       setUser(result.user);
       setTokens(result.accessToken, result.refreshToken);
       toast.show('Berhasil masuk!', 'success');
+
+      // router.replace
       if (params.returnTo) {
         router.replace(params.returnTo as any);
       } else {
@@ -57,13 +67,16 @@ export default function LoginScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
+        {/* [router.back */}
         <Pressable onPress={() => router.back()} accessibilityLabel="Kembali" accessibilityRole="button">
           <ArrowLeft size={22} color={colors.text} strokeWidth={2} />
         </Pressable>
+        
       </View>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Masuk</Text>
         <Text style={styles.subtitle}>Selamat datang kembali di TrendPreneur</Text>
+        
 
         <Card style={styles.formCard}>
           <Input
@@ -84,6 +97,7 @@ export default function LoginScreen() {
             error={errors.password}
             accessibilityLabel="Password"
           />
+          {/*router.push*/}
           <Pressable onPress={() => router.push('/auth/forgot-password')}>
             <Text style={styles.forgotText}>Lupa password?</Text>
           </Pressable>
@@ -91,17 +105,21 @@ export default function LoginScreen() {
           <Button label="Masuk" onPress={handleLogin} loading={loading} fullWidth />
         </Card>
 
+
         <View style={styles.demoCard}>
           <Text style={styles.demoTitle}>Akun Demo</Text>
           <Text style={styles.demoText}>Free: free@trendpreneur.id / Demo12345</Text>
           <Text style={styles.demoText}>Premium: premium@trendpreneur.id / Demo12345</Text>
+          
         </View>
 
+        {/*router.push*/}
         <Pressable onPress={() => router.push('/auth/register')} style={styles.registerLink}>
           <Text style={styles.registerText}>
             Belum punya akun? <Text style={styles.registerBold}>Daftar</Text>
           </Text>
         </Pressable>
+        
       </ScrollView>
     </View>
   );

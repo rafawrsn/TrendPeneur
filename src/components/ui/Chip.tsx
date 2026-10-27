@@ -29,13 +29,15 @@ const styles = StyleSheet.create({
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.pill,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    minHeight: 36,
+    minHeight: 38,
+    flexShrink: 0,
   },
   chipSelected: {
     backgroundColor: colors.primary,
@@ -45,6 +47,8 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.bodySmall,
     fontFamily: typography.fontFamilyMedium,
     color: colors.text,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   labelSelected: {
     color: '#FFFFFF',

@@ -126,6 +126,7 @@ export default function ProductDetailScreen() {
           <Info size={14} color={colors.primary} strokeWidth={2} />
           <Text style={styles.helpText}>Cara membaca grafik</Text>
         </Pressable>
+        
 
         <View style={styles.chartContainer}>
           {trendLoading ? (

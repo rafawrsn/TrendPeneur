@@ -95,7 +95,9 @@ export default function SearchScreen() {
             </TouchableOpacity>
           )}
         </View>
+        
       </View>
+      
 
       {showRecent ? (
         <View style={styles.recentContainer}>

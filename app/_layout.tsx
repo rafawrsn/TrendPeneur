@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Stack, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
@@ -31,6 +31,9 @@ const queryClient = new QueryClient({
 export default function RootLayout() {
   useFrameworkReady();
 
+  // [REQUIREMENT: useState] - Mengelola state kesiapan inisialisasi aplikasi di level Root Layout
+  const [isReady, setIsReady] = useState(false);
+
   const [fontsLoaded, fontError] = useFonts({
     'PlusJakartaSans': PlusJakartaSans_400Regular,
     'PlusJakartaSans-Medium': PlusJakartaSans_500Medium,
@@ -41,16 +44,25 @@ export default function RootLayout() {
   const initializeSession = useSessionStore((s) => s.initialize);
   const initializeUi = useUiStore((s) => s.initialize);
 
+  // [REQUIREMENT: useEffect] - Melakukan inisialisasi session dan konfigurasi UI saat komponen Root Layout dimount
   useEffect(() => {
-    initializeSession();
-    initializeUi();
+    async function prepare() {
+      try {
+        await initializeSession();
+        await initializeUi();
+      } finally {
+        setIsReady(true);
+      }
+    }
+    prepare();
   }, [initializeSession, initializeUi]);
 
+  // [REQUIREMENT: useEffect] - Menyembunyikan SplashScreen setelah font dimuat dan app siap
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    if ((fontsLoaded || fontError) && isReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, isReady]);
 
   if (!fontsLoaded && !fontError) {
     return null;
@@ -61,8 +73,30 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <ToastProvider>
+            {/* [REQUIREMENT: _layout.ts / _layout.tsx & <Stack.Screen>] */}
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="+not-found" />
+              {/* Stack.Screen untuk Bottom Tabs Navigasi Utama */}
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
+              {/* Stack.Screen untuk Modul Autentikasi */}
+              <Stack.Screen name="auth" options={{ headerShown: false }} />
+
+              {/* Stack.Screen untuk Modul & Layar Fitur Aplikasi */}
+              <Stack.Screen name="search" options={{ headerShown: false, presentation: 'modal' }} />
+              <Stack.Screen name="settings" options={{ headerShown: false, presentation: 'card' }} />
+              <Stack.Screen name="notifications" options={{ headerShown: false, presentation: 'card' }} />
+              <Stack.Screen name="help" options={{ headerShown: false, presentation: 'card' }} />
+              <Stack.Screen name="premium" options={{ headerShown: false }} />
+              <Stack.Screen name="analysis" options={{ headerShown: false }} />
+              <Stack.Screen name="product" options={{ headerShown: false }} />
+              <Stack.Screen name="category" options={{ headerShown: false }} />
+              <Stack.Screen name="profile" options={{ headerShown: false }} />
+              <Stack.Screen name="legal" options={{ headerShown: false }} />
+              {/* Stack.Screen untuk Akses Sensor Kamera */}
+              <Stack.Screen name="camera" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
+
+              {/* Stack.Screen untuk Penanganan Halaman Not Found */}
+              <Stack.Screen name="+not-found" options={{ title: 'Halaman Tidak Ditemukan', headerShown: true }} />
             </Stack>
             <StatusBar style="dark" />
           </ToastProvider>

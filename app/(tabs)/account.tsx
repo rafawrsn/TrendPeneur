@@ -12,6 +12,7 @@ import {
   LogOut,
   ChevronRight,
   User as UserIcon,
+  Camera,
 } from 'lucide-react-native';
 import { colors, typography, spacing, radius } from '@/src/theme/tokens';
 import { useSessionStore } from '@/src/stores/session';
@@ -51,6 +52,7 @@ export default function AccountTabScreen() {
 
   const menuItems = [
     { icon: Wallet, label: 'Modal & Konteks Usaha', onPress: () => router.push('/profile/capital') },
+    { icon: Camera, label: 'Sensor Kamera', onPress: () => router.push('/camera') },
     { icon: CreditCard, label: 'Status Pembayaran', onPress: () => router.push('/premium/status') },
     { icon: History, label: 'Riwayat Analisis', onPress: () => router.push('/analysis/history') },
     { icon: Bell, label: 'Notifikasi', onPress: () => router.push('/notifications') },
