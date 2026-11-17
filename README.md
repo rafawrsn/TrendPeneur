@@ -46,12 +46,12 @@ EXPO_PUBLIC_DEV_ADMIN_KEY=dev-admin-secret-key
 
 ## Matriks Hak Akses (Access Matrix)
 
-| Peran | Beranda & Cari Produk | Grafik Tren & Detail | Modal & Profil | Paywall & Pembayaran | Notifikasi | AI Analyst (Baru & Riwayat) |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Guest (Tamu)** | ✅ | ✅ | ❌ (ke Login) | ❌ (ke Login) | ❌ (ke Login) | ❌ (ke Login) |
-| **Free User** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ (ke Paywall) |
-| **Premium** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (Kuota 5/hari) |
-| **Expired Premium** | ✅ | ✅ | ✅ | ✅ | ✅ | Riwayat ✅ / Baru ❌ (Perpanjang) |
+| Peran | Beranda & Cari Produk | Peluang Sekitar (LBS & Peta) | Grafik Tren & Detail | Modal & Profil | Paywall & Pembayaran | Notifikasi | AI Analyst (Baru & Riwayat) |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Guest (Tamu)** | ✅ | ✅ | ✅ | ❌ (ke Login) | ❌ (ke Login) | ❌ (ke Login) | ❌ (ke Login) |
+| **Free User** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ (ke Paywall) |
+| **Premium** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (Kuota 5/hari) |
+| **Expired Premium** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Riwayat ✅ / Baru ❌ (Perpanjang) |
 
 ---
 

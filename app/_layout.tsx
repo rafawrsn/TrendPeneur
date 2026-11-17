@@ -60,18 +60,23 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <SafeAreaProvider>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
           <ErrorBoundary>
             <ToastProvider>
               <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen
+                  name="search"
+                  options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+                />
                 <Stack.Screen name="+not-found" />
               </Stack>
               <StatusBar style="dark" />
             </ToastProvider>
           </ErrorBoundary>
-        </SafeAreaProvider>
-      </QueryClientProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
