@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.h2,
     fontFamily: typography.fontFamilySemiBold,
     color: colors.text,
+    flex: 1,
   },
   loadingOverlay: {
     position: 'absolute',

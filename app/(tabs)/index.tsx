@@ -4,14 +4,13 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   RefreshControl,
   FlatList,
   Pressable,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Bell, Search, Sparkles, TrendingUp } from 'lucide-react-native';
+import { Bell, Search, Sparkles, Camera } from 'lucide-react-native';
 import { colors, typography, spacing, radius } from '@/src/theme/tokens';
 import { getService } from '@/src/api';
 import { useSessionStore } from '@/src/stores/session';
@@ -46,15 +45,24 @@ export default function HomeScreen() {
       <View style={[styles.header, { paddingTop: insets.top + spacing.md }]}>
         <View style={styles.headerRow}>
           <Text style={styles.appName}>TrendPreneur</Text>
-          {user ? (
-            <Pressable onPress={() => router.push('/notifications')} accessibilityLabel="Notifikasi" accessibilityRole="button">
-              <Bell size={22} color={colors.text} strokeWidth={2} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+            <Pressable
+              onPress={() => router.push('/camera')}
+              accessibilityLabel="Buka Sensor Kamera"
+              accessibilityRole="button"
+            >
+              <Camera size={22} color={colors.text} strokeWidth={2} />
             </Pressable>
-          ) : (
-            <Pressable onPress={() => router.push('/auth/login')} accessibilityLabel="Masuk" accessibilityRole="button">
-              <Text style={styles.loginText}>Masuk</Text>
-            </Pressable>
-          )}
+            {user ? (
+              <Pressable onPress={() => router.push('/notifications')} accessibilityLabel="Notifikasi" accessibilityRole="button">
+                <Bell size={22} color={colors.text} strokeWidth={2} />
+              </Pressable>
+            ) : (
+              <Pressable onPress={() => router.push('/auth/login')} accessibilityLabel="Masuk" accessibilityRole="button">
+                <Text style={styles.loginText}>Masuk</Text>
+              </Pressable>
+            )}
+          </View>
         </View>
 
         <Pressable
@@ -67,76 +75,82 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoriesRow}
-        contentContainerStyle={{ paddingHorizontal: spacing.lg, gap: spacing.sm }}
-      >
-        <Chip
-          label="Semua"
-          selected={selectedCategory === ALL_CATEGORY_SLUG}
-          onPress={() => setSelectedCategory(ALL_CATEGORY_SLUG)}
-        />
-        {CATEGORIES.map((cat) => (
+      {/* Category chips – fixed height, never clipped */}
+      <View style={styles.categoriesWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.categoriesRow}
+          contentContainerStyle={styles.categoriesContent}
+        >
           <Chip
-            key={cat.slug}
-            label={cat.name}
-            selected={selectedCategory === cat.slug}
-            onPress={() => setSelectedCategory(cat.slug)}
+            label="Semua"
+            selected={selectedCategory === ALL_CATEGORY_SLUG}
+            onPress={() => setSelectedCategory(ALL_CATEGORY_SLUG)}
           />
-        ))}
-      </ScrollView>
+          {CATEGORIES.map((cat) => (
+            <Chip
+              key={cat.slug}
+              label={cat.name}
+              selected={selectedCategory === cat.slug}
+              onPress={() => setSelectedCategory(cat.slug)}
+            />
+          ))}
+        </ScrollView>
+      </View>
 
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.product.slug}
-        renderItem={({ item }) => (
-          <ProductCard
-            item={item}
-            onPress={() => router.push(`/product/${item.product.slug}`)}
-          />
-        )}
-        contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xxxl }}
-        ListHeaderComponent={() => (
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Sedang Naik</Text>
-            {!user && (
-              <Pressable
-                style={styles.guestBanner}
-                onPress={() => router.push('/auth/login')}
-              >
-                <Sparkles size={16} color={colors.primary} strokeWidth={2} />
-                <Text style={styles.guestBannerText}>Buka AI Analyst untuk prediksi 5-10 tahun</Text>
-              </Pressable>
-            )}
+      {/* Product list – takes all remaining vertical space */}
+      <View style={styles.listWrapper}>
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item.product.slug}
+          renderItem={({ item }) => (
+            <ProductCard
+              item={item}
+              onPress={() => router.push(`/product/${item.product.slug}`)}
+            />
+          )}
+          contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xxxl }}
+          ListHeaderComponent={() => (
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Sedang Naik</Text>
+              {!user && (
+                <Pressable
+                  style={styles.guestBanner}
+                  onPress={() => router.push('/auth/login')}
+                >
+                  <Sparkles size={16} color={colors.primary} strokeWidth={2} />
+                  <Text style={styles.guestBannerText}>Buka AI Analyst untuk prediksi 5-10 tahun</Text>
+                </Pressable>
+              )}
+            </View>
+          )}
+          ListEmptyComponent={
+            !isLoading && !isError ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Belum ada produk di kategori ini.</Text>
+              </View>
+            ) : null
+          }
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
+          }
+          ItemSeparatorComponent={() => <View style={{ height: 0 }} />}
+          showsVerticalScrollIndicator={false}
+        />
+
+        {isLoading && (
+          <View style={styles.loadingOverlay}>
+            {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
           </View>
         )}
-        ListEmptyComponent={
-          !isLoading && !isError ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Belum ada produk di kategori ini.</Text>
-            </View>
-          ) : null
-        }
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
-        }
-        ItemSeparatorComponent={() => <View style={{ height: 0 }} />}
-        showsVerticalScrollIndicator={false}
-      />
 
-      {isLoading && (
-        <View style={styles.loadingOverlay}>
-          {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
-        </View>
-      )}
-
-      {isError && !isLoading && (
-        <View style={styles.loadingOverlay}>
-          <ErrorState onRetry={() => refetch()} />
-        </View>
-      )}
+        {isError && !isLoading && (
+          <View style={styles.loadingOverlay}>
+            <ErrorState onRetry={() => refetch()} />
+          </View>
+        )}
+      </View>
     </View>
   );
 }
@@ -185,10 +199,24 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily,
     color: colors.textSubtle,
   },
+  categoriesWrapper: {
+    flexShrink: 0,
+    flexGrow: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.surface,
+  },
   categoriesRow: {
     flexGrow: 0,
+  },
+  categoriesContent: {
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    maxHeight: 52,
+    gap: spacing.sm,
+    alignItems: 'center',
+  },
+  listWrapper: {
+    flex: 1,
   },
   sectionHeader: {
     marginBottom: spacing.md,
@@ -216,7 +244,7 @@ const styles = StyleSheet.create({
   },
   loadingOverlay: {
     position: 'absolute',
-    top: 180,
+    top: spacing.lg,
     left: spacing.lg,
     right: spacing.lg,
   },

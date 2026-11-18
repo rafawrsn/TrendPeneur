@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Stack, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
@@ -16,7 +17,6 @@ import { ToastProvider } from '@/src/components/ui/Toast';
 import { ErrorBoundary } from '@/src/components/ui/ErrorBoundary';
 import { useSessionStore } from '@/src/stores/session';
 import { useUiStore } from '@/src/stores/ui';
-import { colors } from '@/src/theme/tokens';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -32,6 +32,8 @@ const queryClient = new QueryClient({
 export default function RootLayout() {
   useFrameworkReady();
 
+  const [isReady, setIsReady] = useState(false);
+
   const [fontsLoaded, fontError] = useFonts({
     'PlusJakartaSans': PlusJakartaSans_400Regular,
     'PlusJakartaSans-Medium': PlusJakartaSans_500Medium,
@@ -44,39 +46,75 @@ export default function RootLayout() {
   const initializeUi = useUiStore((s) => s.initialize);
 
   useEffect(() => {
-    initializeSession();
-    initializeUi();
+    async function prepare() {
+      try {
+        await initializeSession();
+        await initializeUi();
+      } finally {
+        setIsReady(true);
+      }
+    }
+
+    prepare();
   }, [initializeSession, initializeUi]);
 
   useEffect(() => {
-    if ((fontsLoaded || fontError) && isSessionInitialized) {
+    if ((fontsLoaded || fontError) && isReady && isSessionInitialized) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError, isSessionInitialized]);
+  }, [fontsLoaded, fontError, isReady, isSessionInitialized]);
 
-  if ((!fontsLoaded && !fontError) || !isSessionInitialized) {
+  if (
+    (!fontsLoaded && !fontError) ||
+    !isReady ||
+    !isSessionInitialized
+  ) {
     return null;
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <SafeAreaProvider>
           <ErrorBoundary>
             <ToastProvider>
               <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="auth" options={{ headerShown: false }} />
+
+                <Stack.Screen name="search" options={{ headerShown: false, presentation: 'modal' }} />
+                <Stack.Screen name="settings" options={{ headerShown: false, presentation: 'card' }} />
+                <Stack.Screen name="notifications" options={{ headerShown: false, presentation: 'card' }} />
+                <Stack.Screen name="help" options={{ headerShown: false, presentation: 'card' }} />
+                <Stack.Screen name="premium" options={{ headerShown: false }} />
+                <Stack.Screen name="analysis" options={{ headerShown: false }} />
+                <Stack.Screen name="product" options={{ headerShown: false }} />
+                <Stack.Screen name="category" options={{ headerShown: false }} />
+                <Stack.Screen name="profile" options={{ headerShown: false }} />
+                <Stack.Screen name="legal" options={{ headerShown: false }} />
+
                 <Stack.Screen
-                  name="search"
-                  options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+                  name="camera"
+                  options={{
+                    headerShown: false,
+                    presentation: 'fullScreenModal',
+                  }}
                 />
-                <Stack.Screen name="+not-found" />
+
+                <Stack.Screen
+                  name="+not-found"
+                  options={{
+                    title: 'Halaman Tidak Ditemukan',
+                    headerShown: true,
+                  }}
+                />
               </Stack>
+
               <StatusBar style="dark" />
             </ToastProvider>
           </ErrorBoundary>
-        </QueryClientProvider>
-      </SafeAreaProvider>
+        </SafeAreaProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }

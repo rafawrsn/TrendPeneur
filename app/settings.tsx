@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Switch, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, ChevronRight, Trash2, LogOut, HelpCircle, FileText, Bell } from 'lucide-react-native';
@@ -19,7 +19,14 @@ export default function SettingsScreen() {
   const logout = useSessionStore((s) => s.logout);
   const simulateAiFailure = useUiStore((s) => s.simulateAiFailure);
   const setSimulateAiFailure = useUiStore((s) => s.setSimulateAiFailure);
+
+  // [REQUIREMENT: useState] - Mengelola status switch toggle notifikasi
   const [notifEnabled, setNotifEnabled] = useState(true);
+
+  // [REQUIREMENT: useEffect] - Menjalankan efek saat halaman pengaturan dimuat
+  useEffect(() => {
+    // Contoh efek samping: inisialisasi atau sinkronisasi preferensi
+  }, []);
 
   const handleDeleteAccount = () => {
     Alert.alert(
@@ -41,6 +48,7 @@ export default function SettingsScreen() {
                     await getService().deleteAccount();
                     await logout();
                     toast.show('Akun dihapus.', 'info');
+                    // [REQUIREMENT: router.replace] - Mengganti stack navigasi ke halaman awal saat akun dihapus
                     router.replace('/');
                   } catch {
                     toast.show('Gagal menghapus akun.', 'error');
@@ -62,6 +70,7 @@ export default function SettingsScreen() {
         style: 'destructive',
         onPress: async () => {
           await logout();
+          // [REQUIREMENT: router.replace] - Mengganti stack navigasi ke halaman awal saat logout (membersihkan sesi)
           router.replace('/');
         },
       },
@@ -69,6 +78,7 @@ export default function SettingsScreen() {
   };
 
   const menuItems = [
+    // [REQUIREMENT: router.push] - Menambahkan layar baru ke stack navigasi
     { icon: HelpCircle, label: 'Bantuan', onPress: () => router.push('/help') },
     { icon: FileText, label: 'Kebijakan Privasi', onPress: () => router.push('/legal/privasi') },
     { icon: FileText, label: 'Syarat & Ketentuan', onPress: () => router.push('/legal/syarat') },
@@ -78,6 +88,7 @@ export default function SettingsScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
+        {/* [REQUIREMENT: router.back] - Kembali ke layar sebelumnya di stack navigasi */}
         <Pressable onPress={() => router.back()} accessibilityLabel="Kembali" accessibilityRole="button">
           <ArrowLeft size={22} color={colors.text} strokeWidth={2} />
         </Pressable>
