@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Home, Sparkles, User, Lock } from 'lucide-react-native';
+import { Home, MapPin, Sparkles, User, Lock } from 'lucide-react-native';
 import { colors, typography } from '@/src/theme/tokens';
 import { useSessionStore } from '@/src/stores/session';
 
@@ -33,6 +33,15 @@ export default function TabLayout() {
           title: 'Beranda',
           tabBarIcon: ({ size, color }) => (
             <Home size={size} color={color} strokeWidth={2} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="nearby"
+        options={{
+          title: 'Sekitar',
+          tabBarIcon: ({ size, color }) => (
+            <MapPin size={size} color={color} strokeWidth={2} />
           ),
         }}
       />

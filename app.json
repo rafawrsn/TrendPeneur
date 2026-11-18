@@ -11,11 +11,14 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "TrendPreneur memakai lokasimu untuk menampilkan peluang usaha dan tren produk di sekitarmu."
         "NSCameraUsageDescription": "Aplikasi membutuhkan izin untuk mengakses sensor kamera untuk mengambil foto."
       }
     },
     "android": {
       "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
         "android.permission.CAMERA"
       ]
     },
@@ -30,6 +33,9 @@
       "expo-web-browser",
       "expo-secure-store",
       [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "TrendPreneur memakai lokasimu untuk menampilkan peluang usaha dan tren produk di sekitarmu."
         "expo-camera",
         {
           "cameraPermission": "Izinkan aplikasi mengakses sensor kamera untuk mengambil foto."
